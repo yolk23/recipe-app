@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.box {
+  background-color: #edf2f7;
+  padding: 1rem;
+  border: 2px solid #333;
+}
+
+* {
+  font-family: Roboto;
+}
