@@ -4,12 +4,12 @@ import "./Stylings/Home.css";
 import { useTheme } from "./ThemeContext";
 import Kitchen from "./Images/Kitchen.jpg";
 import { useEffect, useState } from "react";
+import Footer from "./Footer";
 
 const Home = () => {
   const { theme } = useTheme();
-  const dividerWords = ["test", "test2", "test3"];
+  const dividerWords = ["Enjoy Cooking!", "Great Foods Ahead!", "Great Taste!"];
   const [word, SetWord] = useState(0);
-  const [data, setData] = useState(null);
   const [foods, setFoods] = useState([]);
 
   const URL = "https://www.themealdb.com/api/json/v1/1/random.php";
@@ -18,28 +18,27 @@ const Home = () => {
       try {
         const res = await fetch(URL);
         const js = await res.json();
-        setData(js.meals[0]);
-
-        return data;
+        return js.meals[0];
       } catch (err) {
         console.log(err);
+        return null;
       }
     };
 
-    const getFood = async () => {
-      const foodser = [];
-      for (let i = 0; i < 3; i++) {
-        const food = await fetchData();
-        foodser.push(food);
+    const loopThroughFoods = async () => {
+      const foodCount = 3;
+      const fetchedFoods = [];
+      for (let i = 0; i < foodCount; i++) {
+        const data = await fetchData();
+        fetchedFoods.push(data);
       }
-      setFoods((prevFoods) => [...prevFoods, foodser]);
+      setFoods(fetchedFoods);
+      if (foods.length === 3) {
+        console.log(foods);
+      }
     };
 
-    getFood();
-
-    if (foods.length != 0) {
-      console.log(foods);
-    }
+    loopThroughFoods();
 
     const interval = setInterval(() => {
       SetWord((prevWord) => (prevWord + 1) % dividerWords.length);
@@ -47,14 +46,24 @@ const Home = () => {
 
     return () => clearInterval(interval);
   }, []);
+  const setTheme = () => {
+    return {
+      backgroundColor: theme === "light" ? "white" : "black",
+      color: theme === "light" ? "black" : "white",
+    };
+  };
 
+  const inverseTheme = () => {
+    return {
+      color: theme === "light" ? "black" : "white",
+    };
+  };
   return (
     <>
       <Navbar />
       <div
         style={{
-          backgroundColor: theme === "light" ? "white" : "black",
-          color: theme === "light" ? "black" : "white",
+          setTheme,
           height: "75vh",
           position: "relative",
         }}
@@ -87,15 +96,45 @@ const Home = () => {
         <div className="bg-gray-200  flex items-center justify-center h-20 ">
           <h3>{dividerWords[word]}</h3>
         </div>
-        <div className="grid grid-cols-3 justify-center">
-          <div style={{ border: "solid" }} className=" h-32">
-            <div>{}</div>
-          </div>
-          <div style={{ border: "solid" }} className="">
-            Test
-          </div>
-          <div style={{ border: "solid" }}>Test</div>
+        <div
+          className="  flex items-center justify-center h-15 "
+          style={{
+            setTheme,
+          }}
+        >
+          <h2 className="font-bold text-xl">Random Foods</h2>
         </div>
+        <div className="grid grid-cols-3 justify-center" style={{ setTheme }}>
+          {foods.map((food, index) => (
+            <div
+              key={index}
+              style={{
+                border: "solid",
+                backgroundColor: theme === "light" ? "white" : "black",
+              }}
+            >
+              <div
+                className="text-center font-bold"
+                style={{
+                  color: theme === "light" ? "black" : "white",
+                }}
+              >
+                <h1>{food?.strArea}</h1>
+              </div>
+              <h1
+                className="text-center"
+                style={{
+                  color: theme === "light" ? "black" : "white",
+                }}
+              >
+                {food?.strMeal}
+              </h1>
+
+              <img src={food?.strMealThumb} />
+            </div>
+          ))}
+        </div>
+        <Footer />
       </div>
     </>
   );
